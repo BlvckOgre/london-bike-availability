@@ -1,0 +1,13 @@
+//Moving BikeRawData Table to Bronze Folder
+.alter table BikesRawData (
+TimeStamp: datatime ,
+BikepointID: string,
+Street: string,
+Neighbourhood: string,
+Latitue: dynamic,
+Longitude: dynamic,
+No_Bikes: long,
+No_Empty_Docks: long)
+with (folder = "Bronze")
+
+

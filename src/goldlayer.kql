@@ -1,0 +1,7 @@
+//create materialized view for gold layer
+.create-or-alter materialized-view with (folder="Gold") AggregatedData on table
+{
+BikeTranformedData
+| summarize arg_max(TimeStamp,No_Bikes) by BikepointID
+}
+

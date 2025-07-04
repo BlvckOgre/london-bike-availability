@@ -1,0 +1,54 @@
+// | into table BikeTransformedData
+//Adhoc Query for Analsis
+
+.set-or-replace BikesTransformedData <|
+BikesRawData
+| parse BikepointID with * "BikePoints_" BikepointID:int
+| extend BikesToBeFilled = No_Empty_Docks - No_Bikes
+| extend Action = iff(BikesToBeFilled > 0, tostring(BikesToBeFilled), "NA")
+
+
+
+// create Function to transform Raw Data
+
+.create-or-alter function with (docstring = "Transforms Raw Bike Data", folder = "SilverLayer") TransformBikeData() {
+BikesRawData
+| parse BikepointID with * "Bikepoints_" BikepointID:int
+| extend BikesToBeFilled = No_Empty_Docks - No_Bikes
+| extend Action = iff(BikesToBeFilled > 0, tostring(BikesToBeFilled), "NA")
+}
+
+// enable update policy for silver table using function  TransformBikeData()
+.alter table BikeTranformedData policy update
+'''[{
+"IsEnabled": true,
+"Source": "BikesRawData"
+"Query": "TransformBikeData()",
+"IsTransactional": false,
+"PropagateIngestionProperties": false
+}]'''
+
+
+//get schema to move data
+BikeTranformedData
+| getschema
+| project ColumnName, ColumnType
+
+//Moving BikeRawData Table to silver Folder
+.alter table BikesTransformedData (
+TimeStamp: datatime ,
+BikepointID: int,
+Street: string,
+Neighbourhood: string,
+Latitue: dynamic,
+Longitude: dynamic,
+No_Bikes: long,
+No_Empty_Docks: long,
+BikesToBeFilled: long,
+Action: string)
+with (folder = "Silver")
+
+
+
+
+

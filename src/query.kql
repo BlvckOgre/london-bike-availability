@@ -1,0 +1,10 @@
+AggregatedData
+    | sort by BikepointID
+    | render columnchart with (ycolum=No_Bikes,xcolum=BikrpointID)
+
+BikesRawData
+    | where Neighbourhood == "Chelsea"
+    | summarize max(No_Bikes) by Street
+
+BikesRawData
+    | where TimeStamp > ago(5m)
